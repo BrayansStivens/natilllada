@@ -98,14 +98,9 @@
   </style>
 </head>
 <body class="bg-stripes">
-  <!-- Audio: el MP3 NO se reproduce hasta que la persona toca Entrar -->
-  <audio id="introAudio">
-    <source src="assets/intro.mp3" type="audio/mpeg">
-  </audio>
-
-  <!-- Música de fondo desactivada por defecto -->
-  <audio id="midiplayer" loop>
-    <source src="https://archive.org/download/ChristmasMIDICollection/Jingle%20Bells.mid" type="audio/midi">
+  <!-- Audio principal: se activa al entrar y el botón lo mutea/activa -->
+  <audio id="bgAudio" loop preload="auto">
+    <source src="assets/intro_full.mp3" type="audio/mpeg">
   </audio>
 
   <!-- Splash / Gate -->
@@ -115,7 +110,7 @@
       <p class="pill">Cover: <b>50 barras</b> · Paga antes del <b>30 de agosto</b></p>
       <div class="badges" style="justify-content:center;margin:10px 0">
         <span class="pill">📅 6 de septiembre · 7:00 p.m.</span>
-        <span class="pill">📍 Casa de Joshua</span>
+        <span class="pill">📍 Cra 77b #104 C5 · Interior 201</span>
       </div>
       <button class="cta" id="enterBtn">Entrar y subir el volumen 🔊</button>
       <p style="font-size:12px;opacity:.8;margin-top:8px">*Necesitamos tu toque para activar el audio en móviles.</p>
@@ -136,7 +131,7 @@
         <div class="badge">🛷 VILLANCICOS A GRITOS</div>
         <div class="badge">🔥 AGUARDIENTE FRIENDLY</div>
         <hr/>
-        <div style="text-align:center; font-size:12px">VISAS</div>
+        <div style="text-align:center; font-size:12px">VISITAS</div>
         <div class="counter" id="counter"></div>
       </aside>
 
@@ -153,7 +148,7 @@
 
         <div class="badges">
           <button id="modoBtn" class="cta" style="background:repeating-linear-gradient(45deg,#f00,#f00 6px,#a00 6px,#a00 12px);color:#fff">🔊 Modo Descontrol</button>
-          <button id="musicBtn" class="cta">▶️ Música</button>
+          <button id="musicBtn" class="cta">🔊 Activar</button>
           <button id="copyAddr" class="cta">📋 Copiar dirección</button>
         </div>
 
@@ -165,7 +160,7 @@
             </tr>
             <tr>
               <td><b>📍 Dónde</b></td>
-              <td>Casa de Joshua</td>
+              <td>Cra 77b #104 C5 · Interior 201 — Al lado de la estación de metro cable del 12 de octubre</td>
             </tr>
             <tr>
               <td><b>🎁 Dress code</b></td>
@@ -251,49 +246,40 @@
       document.body.classList.toggle('descontrol');
     });
 
-    // Música / Gate
-    const intro = document.getElementById('introAudio');
-    const midi = document.getElementById('midiplayer');
+    // Música: reproducir al entrar y botón para mutear/activar
+    const bg = document.getElementById('bgAudio');
     const gate = document.getElementById('gate');
     const enterBtn = document.getElementById('enterBtn');
     const musicBtn = document.getElementById('musicBtn');
 
-    function confetti(){
-      const emojis = ['🎄','✨','🕺','💃','🎁','❄'];
-      for(let i=0;i<24;i++){
-        const s = document.createElement('div');
-        s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-        s.style.position='fixed';
-        s.style.left = Math.random()*100 + 'vw';
-        s.style.top='-10vh';
-        s.style.fontSize=(16+Math.random()*24)+'px';
-        s.style.zIndex=9999;
-        s.style.animation=`snow ${8+Math.random()*8}s linear forwards`;
-        document.body.appendChild(s);
-        setTimeout(()=>s.remove(),17000);
-      }
-    }
-
     if(enterBtn){
       enterBtn.addEventListener('click', async ()=>{
-        try{ await intro.play(); }catch(e){}
+        try{ bg.muted=false; await bg.play(); }catch(e){}
         gate.style.display='none';
-        confetti();
+        musicBtn.textContent='🔇 Mutear';
       });
     }
 
     if(musicBtn){
       musicBtn.addEventListener('click', async ()=>{
-        if(midi.paused){ await midi.play(); musicBtn.textContent='⏸️ Música'; }
-        else { midi.pause(); musicBtn.textContent='▶️ Música'; }
+        if(bg.paused){
+          try{ bg.muted=false; await bg.play(); musicBtn.textContent='🔇 Mutear'; }catch(e){}
+        } else {
+          bg.muted = !bg.muted;
+          musicBtn.textContent = bg.muted ? '🔊 Activar' : '🔇 Mutear';
+        }
       });
     }
 
-    // Copiar dirección
+    // Copiar dirección completa
+    const addrFull = 'Cra 77b #104 C5 · Interior 201 — Al lado de la estación de metro cable del 12 de octubre';
     const copyAddr = document.getElementById('copyAddr');
     if(copyAddr){
       copyAddr.addEventListener('click', async ()=>{
-        try{ await navigator.clipboard.writeText('Casa de Joshua'); copyAddr.textContent='✅ Dirección copiada'; setTimeout(()=>copyAddr.textContent='📋 Copiar dirección',2000);}catch(e){}
+        try{ await navigator.clipboard.writeText(addrFull); 
+          copyAddr.textContent='✅ Dirección copiada'; 
+          setTimeout(()=>copyAddr.textContent='📋 Copiar dirección',2000);
+        }catch(e){}
       });
     }
 
