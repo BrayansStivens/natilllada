@@ -22,13 +22,19 @@
     html,body{height:100%; margin:0; padding:0}
     body{
       background-color: var(--bg);
-      background-image: url('assets/bg.gif'); /* 👈 pon aquí tu GIF de fondo (tileable) */
-      background-repeat: repeat;
-      background-size: 240px auto; /* ajuste para móviles */
+      /* la imagen se setea por JS si existe assets/bg.gif o una URL válida */
       color: var(--fg);
       font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
       cursor: url('https://cur.cursors-4u.net/holidays/hol-1/hol54.cur'), auto;
       image-rendering: pixelated;
+    }
+
+    /* Fondo de emergencia: franjas tipo bastón de caramelo */
+    .bg-stripes{
+      background-image: repeating-linear-gradient(45deg, #0a141d 0 18px, #0d1c29 18px 36px),
+                        repeating-linear-gradient(135deg, #b30000 0 6px, #7a0000 6px 12px, transparent 12px 24px);
+      background-blend-mode: overlay;
+      background-size: auto, 240px auto;
     }
 
     .wrapper{max-width:1000px;margin:auto;padding:14px}
@@ -73,10 +79,15 @@
 
     .warning{ color:#ffb; font-style:italic; }
 
+    details.tools{ margin-top:10px; font-size:13px }
+    details.tools summary{ cursor:pointer }
+    .tool-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:6px 0 }
+    .tool-row input[type="text"]{ width:220px; max-width:100% }
+
     @media (prefers-reduced-motion: reduce){ .flake{ display:none } .ticker span{ animation:none } }
   </style>
 </head>
-<body>
+<body class="bg-stripes">
   <audio id="introAudio" autoplay>
     <source src="assets/intro.mp3" type="audio/mpeg">
   </audio>
@@ -101,6 +112,18 @@
         <hr/>
         <div style="text-align:center; font-size:12px">VISITAS</div>
         <div class="counter" id="counter"></div>
+
+        <details class="tools">
+          <summary>⚙️ Cambiar fondo</summary>
+          <div class="tool-row">
+            <label>Sube un GIF/imagen: <input type="file" id="bgUpload" accept="image/gif,image/png,image/jpg,image/jpeg"></label>
+          </div>
+          <div class="tool-row">
+            <input type="text" id="bgUrl" placeholder="Pegar URL de imagen..."/>
+            <button class="cta" id="useUrlBtn">Usar URL</button>
+          </div>
+          <p style="opacity:.8">Si existe <code>assets/bg.gif</code> se usará automáticamente.</p>
+        </details>
       </aside>
 
       <main class="panel">
@@ -160,13 +183,59 @@
   </div>
 
   <script>
-    // Fallback si no existe el GIF de fondo
-    const testBg = new Image();
-    testBg.src = 'assets/bg.gif';
-    testBg.onerror = ()=>{
-      document.body.style.backgroundImage = "url('https://i.imgur.com/s2G7Z0t.png')";
-      document.body.style.backgroundSize = '256px auto';
-    };
+    // Intenta usar assets/bg.gif; si no, deja stripes.
+    (function(){
+      const tryList = [ 'assets/bg.gif', 'assets/bg.png', 'assets/bg.jpg' ];
+      const setBg = (url)=>{
+        document.body.style.backgroundImage = `url('${url}')`;
+        document.body.style.backgroundRepeat = 'repeat';
+        document.body.style.backgroundSize = '240px auto';
+        document.body.classList.remove('bg-stripes');
+      };
+      const testNext = ()=>{
+        const url = tryList.shift();
+        if(!url){ return; }
+        const img = new Image();
+        img.onload = ()=> setBg(url);
+        img.onerror = ()=> testNext();
+        img.src = url;
+      };
+      testNext();
+    })();
+
+    // Uploader/URL para fondo
+    const upload = document.getElementById('bgUpload');
+    if(upload){
+      upload.addEventListener('change', (e)=>{
+        const file = e.target.files && e.target.files[0];
+        if(!file) return;
+        const rd = new FileReader();
+        rd.onload = ()=>{
+          document.body.style.backgroundImage = `url('${rd.result}')`;
+          document.body.style.backgroundRepeat = 'repeat';
+          document.body.style.backgroundSize = '240px auto';
+          document.body.classList.remove('bg-stripes');
+        };
+        rd.readAsDataURL(file);
+      });
+    }
+    const urlInput = document.getElementById('bgUrl');
+    const useUrlBtn = document.getElementById('useUrlBtn');
+    if(useUrlBtn){
+      useUrlBtn.addEventListener('click', ()=>{
+        const val = (urlInput && urlInput.value || '').trim();
+        if(!val) return;
+        const img = new Image();
+        img.onload = ()=>{
+          document.body.style.backgroundImage = `url('${val}')`;
+          document.body.style.backgroundRepeat = 'repeat';
+          document.body.style.backgroundSize = '240px auto';
+          document.body.classList.remove('bg-stripes');
+        };
+        img.onerror = ()=> alert('No se pudo cargar la imagen de fondo. Revisa la URL.');
+        img.src = val;
+      });
+    }
 
     // Nieve
     const mkFlake = () => {
