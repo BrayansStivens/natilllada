@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>🎄 NATILLADA: Trago, Baile & Descontrol 🎅</title>
+  <meta name="description" content="Invitación navideña retro. Mucha natilla (?), más trago, baile y descontrol.">
+  <style>
+    @keyframes snow { to { transform: translateY(110vh) rotate(360deg); } }
+    @keyframes rave { 0%{filter:hue-rotate(0)}50%{filter:hue-rotate(180deg)}100%{filter:hue-rotate(360deg)} }
+    @keyframes blink { 50% { opacity: .15; } }
+    @keyframes marquee { 0%{transform:translateX(100%)} 100%{transform:translateX(-100%)} }
+
+    :root{
+      --bg:#051019;
+      --fg:#e6f3ff;
+      --accent:#00ff90;
+      --xmas:#ff0033;
+      --gold:#ffd700;
+    }
+
+    html,body{height:100%; margin:0; padding:0}
+    body{
+      background-color: var(--bg);
+      background-image: url('assets/bg.gif'); /* 👈 pon aquí tu GIF de fondo (tileable) */
+      background-repeat: repeat;
+      background-size: 240px auto; /* ajuste para móviles */
+      color: var(--fg);
+      font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+      cursor: url('https://cur.cursors-4u.net/holidays/hol-1/hol54.cur'), auto;
+      image-rendering: pixelated;
+    }
+
+    .wrapper{max-width:1000px;margin:auto;padding:14px}
+
+    .topbar{
+      border: 4px double var(--gold);
+      background: linear-gradient(90deg, #390 0, #060 30%, #c00 70%, #600 100%);
+      box-shadow: inset 0 0 25px #000;
+      padding: 6px 10px;
+      position: sticky; top:0; z-index: 5;
+    }
+
+    .ticker{white-space:nowrap; overflow:hidden; font-weight:bold; font-size:14px}
+    .ticker span{ display:inline-block; padding-left:100%; animation:marquee 30s linear infinite; }
+
+    .layout{ display:flex; flex-direction:column; gap:16px; margin-top:12px; }
+    @media(min-width:700px){ .layout{flex-direction:row;} }
+
+    .panel{ background:#0008; border:3px ridge #8f8; box-shadow:0 0 18px #0f85; padding:10px; }
+
+    .sidebar .gif{display:block;margin:8px auto; image-rendering:auto; max-width:100%}
+
+    h1.title{ font-size: clamp(24px, 8vw, 64px); margin:12px 0 6px; text-shadow: 3px 3px 0 #000, 0 0 12px var(--gold); letter-spacing:1px; text-align:center; }
+
+    .blink{ animation: blink 1s step-start infinite; }
+
+    .badges { display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center }
+    .cta{ display:inline-block; padding:10px 14px; font-weight:900; text-transform:uppercase; letter-spacing:1px; background: repeating-linear-gradient(45deg, #0f0, #0f0 6px, #090 6px, #090 12px); color:#012; border:4px ridge #aff; text-decoration:none; box-shadow:0 0 20px #0f8; transform:skew(-8deg); transition: transform .08s ease-in-out; }
+    .cta:hover{ transform:skew(-8deg) scale(1.05) rotate(-1deg); }
+
+    .table{ width:100%; border-collapse:collapse; font-size:14px }
+    .table td{ border:2px dashed #0a64; padding:8px; vertical-align:top }
+
+    .flake{ position: fixed; top: -10vh; pointer-events:none; z-index: 10; opacity:.85; }
+
+    .descontrol .panel, .descontrol .cta { animation: rave 6s linear infinite; }
+
+    .counter{ display:inline-flex; gap:2px; padding:2px 6px; border:2px inset #555; background:#111; }
+    .d{ width:16px; height:22px; background:#000; color:#0f0; display:grid; place-items:center; font-weight:bold; }
+
+    .sidebar a { color:#0f8; text-decoration: underline wavy #f00; }
+
+    .warning{ color:#ffb; font-style:italic; }
+
+    @media (prefers-reduced-motion: reduce){ .flake{ display:none } .ticker span{ animation:none } }
+  </style>
+</head>
+<body>
+  <audio id="introAudio" autoplay>
+    <source src="assets/intro.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="midiplayer" autoplay loop>
+    <source src="https://archive.org/download/ChristmasMIDICollection/Jingle%20Bells.mid" type="audio/midi">
+  </audio>
+
+  <div class="topbar">
+    <div class="ticker"><span>🎅✨ Bienvenid@ a la NATILLADA: menos natilla, MÁS TRAGO, MÁS BAILE, MÁS DESCONTROL ✨🎄 — trae tu vaso, tu mejor paso prohibido y actitud de fin de año 💃🕺 — cover 50 barras (paga antes del 30 de agosto) 💵 — ¡NO apto para tías sensibles! 🙈</span></div>
+  </div>
+
+  <div class="wrapper">
+    <div class="layout">
+
+      <aside class="sidebar panel">
+        <img class="gif" alt="granino" src="assets/granino.png" />
+        <hr/>
+        <div class="badge">⭐ INVITAX 100% REAL NO FAKE</div>
+        <div class="badge">🛷 VILLANCICOS A GRITOS</div>
+        <div class="badge">🔥 AGUARDIENTE FRIENDLY</div>
+        <hr/>
+        <div style="text-align:center; font-size:12px">VISITAS</div>
+        <div class="counter" id="counter"></div>
+      </aside>
+
+      <main class="panel">
+        <h1 class="title">🎄 NATILLADA 🎅</h1>
+        <p style="text-align:center">Edición especial: <b>menor cantidad de natilla, mayor cantidad de fiesta</b>. Ven a celebrar como si el primo hubiera traído el equipo de sonido del barrio.</p>
+
+        <div class="badges">
+          <button id="modoBtn" class="cta" style="background:repeating-linear-gradient(45deg,#f00,#f00 6px,#a00 6px,#a00 12px);color:#fff">🔊 Modo Descontrol</button>
+        </div>
+
+        <div class="card">
+          <table class="table">
+            <tr>
+              <td width="40%"><b>🗓️ Cuándo</b></td>
+              <td>Viernes 6 de septiembre · 7:00 p.m. hasta que el DJ diga <i>“¡otra, otra, otra!”</i></td>
+            </tr>
+            <tr>
+              <td><b>📍 Dónde</b></td>
+              <td>Casa de Joshua</td>
+            </tr>
+            <tr>
+              <td><b>🎁 Dress code</b></td>
+              <td>Ugly sweater navideño / pinta noventera / gorro de Papá Noel con luces de feria.</td>
+            </tr>
+            <tr>
+              <td><b>🍮 La natilla</b></td>
+              <td>Habrá, pero <u>no estorbes la pista con la cuchara</u>. Buñuelos en modo proyectil a las 10 p.m.</td>
+            </tr>
+            <tr>
+              <td><b>🎶 Música</b></td>
+              <td>Villancicos, tropipop dosmilesco, perreo villero, 🎵 y clásico <i>mix diciembre bailable</i>.</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3>Reglamento de la rumbanovena (edición absurda)</h3>
+          <ul>
+            <li>Prohibido hablar de trabajo después de la tercera canción. Antes también.</li>
+            <li>Quien ponga “El Burrito Sabanero (remix) x10 horas” gana respeto eterno.</li>
+            <li>La pista es para bailar; la natilla es para existir en segundo plano.</li>
+          </ul>
+          <p class="warning">*Evento 18+. Conduce responsablemente. Hidrátate (con agua real). No seas ese meme.</p>
+        </div>
+
+        <div class="card" id="pago">
+          <h3>Cover & Pago</h3>
+          <p>Cover: <b>50 barras</b>. <br/>Fecha límite de pago: <b>30 de agosto</b>.</p>
+          <div style="text-align:center">
+            <img src="assets/qr.png" alt="QR de pago" style="max-width:220px; width:60%; height:auto; image-rendering:pixelated; border:3px solid #0f8; padding:6px; background:#000;"/>
+            <p style="font-size:12px; opacity:.9">Escanea el QR y envía el comprobante por DM.</p>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Fallback si no existe el GIF de fondo
+    const testBg = new Image();
+    testBg.src = 'assets/bg.gif';
+    testBg.onerror = ()=>{
+      document.body.style.backgroundImage = "url('https://i.imgur.com/s2G7Z0t.png')";
+      document.body.style.backgroundSize = '256px auto';
+    };
+
+    // Nieve
+    const mkFlake = () => {
+      const f = document.createElement('div');
+      f.className = 'flake';
+      f.textContent = ['❄','✻','✼','❅','❆'][Math.floor(Math.random()*5)];
+      f.style.left = Math.random()*100 + 'vw';
+      f.style.fontSize = (8 + Math.random()*24) + 'px';
+      f.style.animation = `snow ${8+Math.random()*12}s linear infinite`;
+      document.body.appendChild(f);
+      setTimeout(()=>f.remove(), 23000);
+    };
+    setInterval(mkFlake, 250);
+
+    // Contador
+    const counter = document.getElementById('counter');
+    const n = (parseInt(localStorage.getItem('retro_visits')|| (1000 + Math.random()*9000)) + 1);
+    localStorage.setItem('retro_visits', n);
+    const digits = String(n).padStart(6,'0').split('');
+    counter.innerHTML = digits.map(d=>`<span class="d">${d}</span>`).join('');
+
+    // Modo descontrol
+    document.getElementById('modoBtn').addEventListener('click',()=>{
+      document.body.classList.toggle('descontrol');
+    });
+
+    // Autoplay móvil (algunos navegadores bloquean). Toca para activar.
+    const intro = document.getElementById('introAudio');
+    const tryPlay = () => intro.play().catch(()=>{});
+    document.addEventListener('touchstart', tryPlay, { once:true });
+  </script>
+</body>
+</html>
